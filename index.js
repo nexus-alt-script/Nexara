@@ -5,6 +5,43 @@ const checkban = require('./nexara/system/checkBAN.js');
 const isVerified = require('./nexara/system/checkVerification.js');
 const login = require('fca-unofficial');
 
+
+app.get('/sendInfo', (req, res) => {
+  const devID = req.query.devID;
+  const key = req.query.key;
+
+  if (!devID || !key) {
+    return res.status(400).send("Missing device ID or key.");
+  }
+
+  let data = {
+    id: Date.now().toString(),
+    deviceID: devID,
+    key: key
+  };
+
+  let users;
+  try {
+    users = JSON.parse(fs.readFileSync('./nexara/database/users.json', 'utf8'));
+  } catch (err) {
+    return res.status(500).send("Error reading user data.");
+  }
+
+  if (users.some(user => user.deviceID === devID || user.key === key)) {
+    return res.status(400).send("You are already registered.");
+  }
+
+  users.push(data);
+
+  try {
+    fs.writeFileSync('./nexara/database/users.json', JSON.stringify(users, null, 2));
+  } catch (err) {
+    return res.status(500).send("Error saving user data.");
+  }
+
+  res.send(data.id);
+});
+
 app.get('/isBanned', (req, res) => {
   const deviceID = req.query.deviceID;
   if (!deviceID) return res.send('Error');
@@ -69,6 +106,15 @@ login({ appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8')) }, (err, 
           api.sendMessage("ID Banned Successfully.", event.threadID, event.messageID);
           api.setMessageReaction("😍", event.messageID, (err) => {}, true);
         }
+      }
+      if (event.body == "/info") {
+        
+        const fata = JSON.parse(fs.readFileSync('./nexara/database/users.json', 'utf8'))
+        msg = "-------------------\n"
+        fata.forEach(user => {
+          msg += `Device ID: ${user.deviceID},\nKey: ${user.key},\nID: ${user.id}\n-------------------\n`
+        })
+        api.sendMessage(msg, event.threadID, event.messageID)
       }
     } else {
       console.log('Event body is undefined.');
