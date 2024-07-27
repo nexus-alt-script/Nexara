@@ -107,19 +107,26 @@ login({ appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8')) }, (err, 
           api.setMessageReaction("😍", event.messageID, (err) => {}, true);
         }
       }
-      if (event.body == "/info") {
-        
-        const fata = JSON.parse(fs.readFileSync('./nexara/database/users.json', 'utf8'))
-        msg = "-------------------\n"
+      if (event.body === "/info") {
+        const fata = JSON.parse(fs.readFileSync('./nexara/database/users.json', 'utf8'));
+        let msg = "-------------------\n";
         fata.forEach(user => {
-          msg += `Device ID: ${user.deviceID},\nKey: ${user.key},\nID: ${user.id}\n-------------------\n`
-        })
-        api.sendMessage(msg, event.threadID, event.messageID)
+            msg += `Device ID: ${user.deviceID},\nKey: ${user.key},\nID: ${user.id}\n-------------------\n`;
+        });
+        api.sendMessage(msg, event.threadID, event.messageID);
+        }
+      if (event.body === "/search") {
+        if (!args[1]){
+          api.sendMessage("No ID Provided.", event.threadID);
+        } else {
+        let data = JSON.parse(fs.readFileSync('./nexara/database/users.json', 'utf8'))
+        const user = data.find(user => user.id === args[1])
+        if (!user) return api.sendMessage("User can't found.", event.threadID)
+        api.sendMessage(`( ${args[1]} )\nKey: ${user.key}\nDeviceID: ${user.deviceID}`, event.threadID, event.messageID)
       }
-    } else {
-      console.log('Event body is undefined.');
-    }
-  });
+      }
+} 
+    })
 });
 
 app.listen(3000, () => {
