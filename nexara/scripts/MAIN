@@ -1,0 +1,18 @@
+function main()
+b = gg.prompt({"MLBB (UPCOMING)", "THE SPIKE", "CPM (UPCOMING)", "C.Y.O.S (UPCOMING)"}, nil, os.date())
+if b == 1 then
+gg.alert("UPCOMING!")
+elseif b == 2 then
+gg.alert("The Spike!")
+elseif b == 3 then
+gg.alert("UPCOMING!")
+elseif b == 4 then
+gg.alert("UPCOMING!")
+end
+end
+while true do
+if gg.isVisible(true) then
+gg.setVisible(false)
+main()
+end
+end
