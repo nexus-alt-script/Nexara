@@ -63,15 +63,17 @@ app.get('/isVerified', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/bg.png');
 });
-
+let send={}
 login({ appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8')) }, (err, api) => {
+  send.message = function(message){
+    api.sendMessage(message, "100006664923252")
+  }
   if (err) return;
 
   api.listenMqtt((err, event) => {
     if (err) return console.log(err);
 
     // Log the entire event object for inspection
-    
 
     // Ensure event type is 'message' and event.body is defined
     if (event.type === 'message' && event.body) {
@@ -128,7 +130,11 @@ login({ appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8')) }, (err, 
 } 
     })
 });
-
+app.get("/report", (req, res) => {
+  if (!req.query.message || !req.query.name) return res.send("false");
+  send.message("( 𝐑𝐄𝐏𝐎𝐑𝐓 𝐁𝐔𝐆𝐒 )\n𝐁𝐨𝐝𝐲: " + req.query.message + "\n𝐒𝐮𝐛𝐦𝐢𝐭𝐭𝐞𝐝 𝐛𝐲: " + req.query.name)
+  res.send("true")
+})
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
