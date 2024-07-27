@@ -110,6 +110,7 @@ login({ appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8')) }, (err, 
         }
       }
       if (event.body === "/info") {
+        if (event.senderID !== "100006664923252") return api.sendMessage("You don't have permission to use this.", event.threadID, event.messageID)
         const fata = JSON.parse(fs.readFileSync('./nexara/database/users.json', 'utf8'));
         let msg = "-------------------\n";
         fata.forEach(user => {
